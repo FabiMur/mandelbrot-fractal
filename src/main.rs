@@ -4,6 +4,27 @@ use std::iter::successors;
 use clap::Parser;
 use indicatif::{ProgressBar, ProgressStyle, ProgressIterator};
 
+// Command line arguments
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Image width in pixels
+    #[arg(long, default_value_t = 1000)]
+    width: usize,
+
+    /// Image height in pixels
+    #[arg(long, default_value_t = 1000)]
+    height: usize,
+    
+
+    /// Maximum number of iterations for the escape time algorithm
+    #[arg(long, default_value_t = 1000)]
+    max_iter: usize,
+
+    /// Output filename
+    #[arg(long, default_value = "fractal.ppm")]
+    output: String,
+}
 #[derive(Debug, Clone, Copy)]
 struct Complex {
     re: f64,
@@ -50,27 +71,6 @@ struct Color {
     r: u8,
     g: u8,
     b: u8,
-}
-
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// Image width in pixels
-    #[arg(long, default_value_t = 1000)]
-    width: usize,
-
-    /// Image height in pixels
-    #[arg(long, default_value_t = 1000)]
-    height: usize,
-    
-
-    /// Maximum number of iterations for the escape time algorithm
-    #[arg(long, default_value_t = 1000)]
-    max_iter: usize,
-
-    /// Output filename
-    #[arg(long, default_value = "fractal.ppm")]
-    output: String,
 }
 
 fn main() -> std::io::Result<()> {
