@@ -2,6 +2,7 @@ use std::ops::Add;
 use std::iter::successors;
 
 use clap::Parser;
+use image::{Rgb, RgbImage};
 use indicatif::{ProgressBar, ProgressStyle, ParallelProgressIterator};
 use rayon::prelude::*;
 
@@ -23,7 +24,7 @@ struct Args {
     max_iter: usize,
 
     /// Output filename
-    #[arg(long, default_value = "fractal.ppm")]
+    #[arg(long, default_value = "fractal.png")]
     output: String,
 }
 #[derive(Debug, Clone, Copy)]
@@ -72,7 +73,7 @@ fn main() -> std::io::Result<()> {
 
     let img = generate_image(args.width, args.height, args.max_iter);
 
-    write_ppm_p6(&args.output, args.width, args.height, &img)
+    write_png(&args.output, args.width, args.height, &img)
 }
 
 /// Generate a Mandelbrot image
@@ -143,15 +144,15 @@ fn color(escape_time: f64) -> Color {
     };
 }
 
-/// Convert the image data to PPM format
-fn ppm_bytes(width: usize, height: usize, img: &[Color]) -> Vec<u8> {
-    let mut data = Vec::new();
-    data.extend_from_slice(format!("P6\n{} {}\n255\n", width, height).as_bytes());
-    data.extend(img.iter().flat_map(|p| [p.r, p.g, p.b]));
-    data
-}
+/// Write the image into a PNG file
+fn write_png(filename: &str, width: usize, height: usize, img: &[Color]) -> std::io::Result<()> {
+    let mut imgbuf = RgbImage::new(width as u32, height as u32);
 
-/// Write a PPM P6 image file.
-fn write_ppm_p6(filename: &str, width: usize, height: usize, img: &[Color]) -> std::io::Result<()> {
-    std::fs::write(filename, ppm_bytes(width, height, img))
+    for (i, pixel) in img.iter().enumerate() {
+        let x = (i % width) as u32;
+        let y = (i / width) as u32;
+        imgbuf.put_pixel(x, y, Rgb([pixel.r, pixel.g, pixel.b]));
+    }
+
+    imgbuf.save(filename).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
 }
