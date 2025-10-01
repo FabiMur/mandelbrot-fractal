@@ -88,7 +88,7 @@ fn generate_image(width: usize, height: usize, max_iter: usize) -> Vec<Color> {
 
     (0..height)
         .flat_map(|y| (0..width).map(move |x| (x, y)))
-        .progress_with(pb) // <- magia
+        .progress_with(pb)
         .map(|(x, y)| {
             let c = map_screen_to_complex(x, y, width, height);
             match mandelbrot(c, max_iter) {
@@ -104,7 +104,7 @@ fn generate_image(width: usize, height: usize, max_iter: usize) -> Vec<Color> {
 /// Map screen plane coordinates to complex plane coordinates
 fn map_screen_to_complex(x: usize, y: usize, width: usize, height: usize) -> Complex {
 
-    let  x_interval = (-1.5, 1.5);
+    let  x_interval = (-2.0, 1.0);
     let  y_interval = (-1.5, 1.5);
 
     let re = (x as f64 / width as f64) * (x_interval.1 - x_interval.0) + x_interval.0;
