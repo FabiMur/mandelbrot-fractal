@@ -2,6 +2,7 @@ use std::ops::{Add,AddAssign};
 use std::iter::successors;
 
 use clap::Parser;
+use indicatif::{ProgressBar, ProgressStyle, ProgressIterator};
 
 #[derive(Debug, Clone, Copy)]
 struct Complex {
@@ -82,17 +83,27 @@ fn main() -> std::io::Result<()> {
 
 /// Generate a Mandelbrot image
 fn generate_image(width: usize, height: usize, max_iter: usize) -> Vec<Color> {
+    
+    // Progress bar setup
+    let total = (width * height) as u64;
+    let pb = ProgressBar::new(total);
+    pb.set_style(
+        ProgressStyle::with_template(
+            "{spinner} [{elapsed_precise}] [{bar:40.cyan/blue}] {pos}/{len} ({percent}%)"
+        ).unwrap()
+    );
+
     (0..height)
-        .flat_map(|y| {
-            (0..width).map(move |x| {
-                let c = map_screen_to_complex(x, y, width, height);
-                match mandelbrot(c, max_iter) {
-                    // Points in the set
-                    None => Color { r: 0, g: 0, b: 0 },
-                    // Points outside the set, colored depending on the escape time
-                    Some(s) => color(s),
-                }
-            })
+        .flat_map(|y| (0..width).map(move |x| (x, y)))
+        .progress_with(pb) // <- magia
+        .map(|(x, y)| {
+            let c = map_screen_to_complex(x, y, width, height);
+            match mandelbrot(c, max_iter) {
+                // Points in the set
+                None => Color { r: 0, g: 0, b: 0 },
+                // Points outside the set, colored depending on the escape time
+                Some(s) => color(s),
+            }
         })
         .collect()
 }
