@@ -2,7 +2,8 @@ use std::ops::Add;
 use std::iter::successors;
 
 use clap::Parser;
-use indicatif::{ProgressBar, ProgressStyle, ProgressIterator};
+use indicatif::{ProgressBar, ProgressStyle, ParallelProgressIterator};
+use rayon::prelude::*;
 
 // Command line arguments
 #[derive(Parser, Debug)]
@@ -86,15 +87,15 @@ fn generate_image(width: usize, height: usize, max_iter: usize) -> Vec<Color> {
         ).unwrap()
     );
 
-    (0..height)
-        .flat_map(|y| (0..width).map(move |x| (x, y)))
+    (0..total)
+        .into_par_iter()
         .progress_with(pb)
-        .map(|(x, y)| {
+        .map(|i| {
+            let x = (i % width as u64) as usize;
+            let y = (i / width as u64) as usize;
             let c = map_screen_to_complex(x, y, width, height);
             match mandelbrot(c, max_iter) {
-                // Points in the set
                 None => Color { r: 0, g: 0, b: 0 },
-                // Points outside the set, colored depending on the escape time
                 Some(s) => color(s),
             }
         })
