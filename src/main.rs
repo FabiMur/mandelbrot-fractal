@@ -108,7 +108,8 @@ fn map_screen_to_complex(x: usize, y: usize, width: usize, height: usize) -> Com
     let  y_interval = (-1.5, 1.5);
 
     let re = (x as f64 / width as f64) * (x_interval.1 - x_interval.0) + x_interval.0;
-    let im = (y as f64 / height as f64) * (y_interval.1 - y_interval.0) + y_interval.0;
+    let im = y_interval.1 - ((y as f64 + 0.5) / height as f64) * (y_interval.1 - y_interval.0);
+
     Complex { re, im }
 }
 
