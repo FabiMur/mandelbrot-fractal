@@ -1,4 +1,4 @@
-use std::ops::{Add,AddAssign};
+use std::ops::Add;
 use std::iter::successors;
 
 use clap::Parser;
@@ -56,13 +56,6 @@ impl Add for Complex {
             re: self.re + other.re,
             im: self.im + other.im,
         }
-    }
-}
-
-impl AddAssign for Complex {
-    fn add_assign(&mut self, other: Complex) {
-        self.re += other.re;
-        self.im += other.im;
     }
 }
 
