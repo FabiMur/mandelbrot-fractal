@@ -1,6 +1,8 @@
 use std::ops::{Add,AddAssign};
 use std::iter::successors;
 
+use clap::Parser;
+
 #[derive(Debug, Clone, Copy)]
 struct Complex {
     re: f64,
@@ -49,14 +51,33 @@ struct Color {
     b: u8,
 }
 
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Image width in pixels
+    #[arg(long, default_value_t = 1000)]
+    width: usize,
+
+    /// Image height in pixels
+    #[arg(long, default_value_t = 1000)]
+    height: usize,
+    
+
+    /// Maximum number of iterations for the escape time algorithm
+    #[arg(long, default_value_t = 1000)]
+    max_iter: usize,
+
+    /// Output filename
+    #[arg(long, default_value = "fractal.ppm")]
+    output: String,
+}
+
 fn main() -> std::io::Result<()> {
-    let width = 1000;
-    let height = 1000;
-    let max_iter = 1000;
+    let args = Args::parse();
 
-    let img =  generate_image(width, height, max_iter);
+    let img = generate_image(args.width, args.height, args.max_iter);
 
-    write_ppm_p6("fractal.ppm", width, height, &img)
+    write_ppm_p6(&args.output, args.width, args.height, &img)
 }
 
 /// Generate a Mandelbrot image
